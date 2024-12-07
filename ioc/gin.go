@@ -4,14 +4,14 @@
 package ioc
 
 import (
-	"github.com/StarJoice/tech_blog/internal/user/web"
+	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/StarJoice/tools/ginx/session"
 	"github.com/gin-contrib/cors"
 	"github.com/gotomicro/ego/server/egin"
 	"strings"
 )
 
-func InitGinXServer(sp session.Provider, user *web.UserHandler) *egin.Component {
+func InitGinXServer(sp session.Provider, user *user.Handler) *egin.Component {
 	session.SetDefaultProvider(sp)
 	server := egin.Load("Web").Build()
 	//server.Use(mdls...)

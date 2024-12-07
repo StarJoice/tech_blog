@@ -4,7 +4,6 @@
 package ioc
 
 import (
-	"github.com/StarJoice/tech_blog/internal/user/repository/dao"
 	"github.com/ego-component/egorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -16,7 +15,6 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	err = dao.InitTable(DB)
 	return DB
 }
 

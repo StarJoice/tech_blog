@@ -7,10 +7,8 @@
 package ioc
 
 import (
-	"github.com/StarJoice/tech_blog/internal/user/repository"
-	"github.com/StarJoice/tech_blog/internal/user/repository/dao"
-	"github.com/StarJoice/tech_blog/internal/user/service"
-	"github.com/StarJoice/tech_blog/internal/user/web"
+	"github.com/StarJoice/tech_blog/internal/user"
+	"github.com/google/wire"
 )
 
 // Injectors from wire.go:
@@ -19,13 +17,14 @@ func InitApp() (*App, error) {
 	cmdable := InitRedis()
 	provider := InitSession(cmdable)
 	db := InitDB()
-	userDao := dao.NewUserGormDao(db)
-	userRepository := repository.NewUserCacheRepository(userDao)
-	userService := service.NewUserSvc(userRepository)
-	userHandler := web.NewUserHandle(userService)
+	userHandler := user.InitHandler(db)
 	component := InitGinXServer(provider, userHandler)
 	app := &App{
 		Web: component,
 	}
 	return app, nil
 }
+
+// wire.go:
+
+var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis)
