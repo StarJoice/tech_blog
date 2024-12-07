@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/StarJoice/tech_blog/internal/user/errs"
+	"github.com/StarJoice/tech_blog/internal/user/internal/errs"
 	ginx "github.com/StarJoice/tools/ginx/wrapper"
 )
 

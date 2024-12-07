@@ -6,8 +6,8 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/StarJoice/tech_blog/internal/user/domain"
-	"github.com/StarJoice/tech_blog/internal/user/repository"
+	"github.com/StarJoice/tech_blog/internal/user/internal/domain"
+	"github.com/StarJoice/tech_blog/internal/user/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 

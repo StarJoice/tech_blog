@@ -5,8 +5,8 @@ package repository
 
 import (
 	"context"
-	"github.com/StarJoice/tech_blog/internal/user/domain"
-	"github.com/StarJoice/tech_blog/internal/user/repository/dao"
+	"github.com/StarJoice/tech_blog/internal/user/internal/domain"
+	"github.com/StarJoice/tech_blog/internal/user/internal/repository/dao"
 )
 
 var (

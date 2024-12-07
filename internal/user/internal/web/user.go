@@ -6,8 +6,8 @@ package web
 import (
 	"errors"
 	"fmt"
-	"github.com/StarJoice/tech_blog/internal/user/domain"
-	"github.com/StarJoice/tech_blog/internal/user/service"
+	"github.com/StarJoice/tech_blog/internal/user/internal/domain"
+	"github.com/StarJoice/tech_blog/internal/user/internal/service"
 	"github.com/StarJoice/tools/ginx/session"
 	ginx "github.com/StarJoice/tools/ginx/wrapper"
 	regexp "github.com/dlclark/regexp2"
