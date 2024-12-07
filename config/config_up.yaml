@@ -1,0 +1,10 @@
+Web:
+  port: 8080
+  model: debug
+mysql:
+  dsn: "root:1233@tcp(localhost:3307)/tech_blog?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&timeout=1s&readTimeout=3s&writeTimeout=3s"
+  debug: true
+redis:
+  addr: "localhost:6379"
+session:
+  sessionKey: "abc"
