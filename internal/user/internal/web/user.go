@@ -12,20 +12,20 @@ import (
 	ginx "github.com/StarJoice/tools/ginx/wrapper"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
+	"github.com/gotomicro/ego/core/elog"
 )
 
 var (
-	emailRegexPattern        = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
-	passwordRegexPattern     = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
-	bizLogin                 = "login"
-	ErrDuplicateEmail        = service.ErrDuplicateEmail
-	ErrInvalidUserOrPassword = service.ErrInvalidUserOrPassword
+	emailRegexPattern    = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
+	passwordRegexPattern = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
+	ErrDuplicateEmail    = service.ErrDuplicateEmail
 )
 
 type UserHandler struct {
 	emailRexExp    *regexp.Regexp
 	passwordRexExp *regexp.Regexp
 	svc            service.UserService
+	logger         *elog.Component
 }
 
 // PublicRoutes 公开路由
@@ -34,8 +34,9 @@ func (h *UserHandler) PublicRoutes(server *gin.Engine) {
 	server.POST("/login", ginx.WithRequest[loginReq](h.Login))
 }
 func (h *UserHandler) PrivateRoutes(server *gin.Engine) {
-	_ = server.Group("/user")
-
+	user := server.Group("/user")
+	user.GET("/profile", ginx.WithSession(h.Profile))
+	user.PUT("/profile", ginx.WithSessionAndRequest[editReq](h.Edit))
 }
 
 type signUpReq struct {
@@ -45,6 +46,7 @@ type signUpReq struct {
 }
 
 func (h *UserHandler) SignUp(ctx *ginx.Context, req signUpReq) (ginx.Result, error) {
+	//h.logger.Info("SignUp", elog.Any("email", req.Email))
 	// 判断邮箱格式是否正确
 	isEmail, err := h.emailRexExp.MatchString(req.Email)
 	if err != nil {
@@ -104,10 +106,49 @@ func (h *UserHandler) Login(ctx *ginx.Context, req loginReq) (ginx.Result, error
 	}
 }
 
+func (h *UserHandler) Profile(ctx *ginx.Context, sess session.Session) (ginx.Result, error) {
+	// 直接从session中拿到uid
+	uid := sess.Claims().Uid
+	u, err := h.svc.Profile(ctx, uid)
+	if err != nil {
+		return ginx.Result{}, err
+	}
+	return ginx.Result{Data: Profile{
+		Id:       u.Id,
+		Nickname: u.Nickname,
+		Avatar:   u.Avatar,
+		AboutMe:  u.AboutMe,
+	}}, nil
+}
+
+// editReq 仅能更新用户信息下的非敏感字段（昵称、头像等等...），后续扩展再加入字段
+type editReq struct {
+	Nickname string `json:"nickname" binding:"required"`
+	Avatar   string `json:"avatar" binding:"required"`
+	AboutMe  string `json:"aboutMe" binding:"required"`
+}
+
+func (h *UserHandler) Edit(ctx *ginx.Context, req editReq, sess session.Session) (ginx.Result, error) {
+	uid := sess.Claims().Uid
+	err := h.svc.UpdateNonSensitiveInfo(ctx, domain.User{
+		Id:       uid,
+		Nickname: req.Nickname,
+		Avatar:   req.Avatar,
+		AboutMe:  req.AboutMe,
+	})
+	if err != nil {
+		return systemErrorResult, err
+	}
+	return ginx.Result{
+		Msg: "用户信息更新完成",
+	}, nil
+}
+
 func NewUserHandle(svc service.UserService) *UserHandler {
 	return &UserHandler{
 		svc:            svc,
 		emailRexExp:    regexp.MustCompile(emailRegexPattern, regexp.None),
 		passwordRexExp: regexp.MustCompile(passwordRegexPattern, regexp.None),
+		logger:         elog.DefaultLogger,
 	}
 }

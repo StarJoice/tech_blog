@@ -3,7 +3,7 @@ module github.com/StarJoice/tech_blog
 go 1.23.3
 
 require (
-	github.com/StarJoice/tools v0.0.2
+	github.com/StarJoice/tools v0.0.5
 	github.com/dlclark/regexp2 v1.11.4
 	github.com/ego-component/egorm v1.1.4
 	github.com/gin-contrib/cors v1.7.2

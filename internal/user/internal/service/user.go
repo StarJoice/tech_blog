@@ -16,13 +16,21 @@ var (
 	ErrInvalidUserOrPassword = errors.New("用户不存在或密码不正确")
 )
 
+//go:generate mockgen -source=./user.go -package=svcmocks -destination=mocks/user.mock.go UserService
 type UserService interface {
 	Signup(ctx context.Context, user domain.User) error
 	Login(ctx context.Context, email string, password string) (domain.User, error)
+	Profile(ctx context.Context, uid int64) (domain.User, error)
+	// UpdateNonSensitiveInfo 更新用户信息下的非敏感字段（就是指头像昵称等等...）
+	UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error
 }
 
 type UserSvc struct {
 	repo repository.UserRepository
+}
+
+func (svc *UserSvc) UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error {
+	return svc.repo.Update(ctx, user)
 }
 
 func (svc *UserSvc) Login(ctx context.Context, email string, password string) (domain.User, error) {
@@ -49,6 +57,9 @@ func (svc *UserSvc) Signup(ctx context.Context, user domain.User) error {
 	}
 	user.Password = string(hash)
 	return svc.repo.Create(ctx, user)
+}
+func (svc *UserSvc) Profile(ctx context.Context, uid int64) (domain.User, error) {
+	return svc.repo.FindById(ctx, uid)
 }
 
 func NewUserSvc(repo repository.UserRepository) UserService {

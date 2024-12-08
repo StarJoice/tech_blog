@@ -32,5 +32,7 @@ func InitGinXServer(sp session.Provider, user *user.Handler) *egin.Component {
 	user.PublicRoutes(server.Engine)
 	// 开启登录校验
 	server.Use(session.CheckLoginMiddleware())
+	user.PrivateRoutes(server.Engine)
+
 	return server
 }
