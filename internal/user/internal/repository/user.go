@@ -5,14 +5,16 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/StarJoice/tech_blog/internal/user/internal/domain"
 	"github.com/StarJoice/tech_blog/internal/user/internal/repository/cache"
 	"github.com/StarJoice/tech_blog/internal/user/internal/repository/dao"
 )
 
 var (
-	ErrDuplicateEmail = dao.ErrDuplicateEmail
-	ErrUserNotFound   = dao.ErrRecordNotFound
+	ErrDuplicateEmail  = dao.ErrDuplicateEmail
+	ErrUserNotFound    = dao.ErrRecordNotFound
+	ErrInvalidPassword = errors.New("密码错误")
 )
 
 //go:generate mockgen -source=./user.go -package=repomocks -destination=mocks/user.mock.go UserRepository
@@ -21,6 +23,7 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (domain.User, error)
 	FindById(ctx context.Context, uid int64) (domain.User, error)
 	Update(ctx context.Context, user domain.User) error
+	UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error
 }
 
 type UserCacheRepository struct {
@@ -31,6 +34,23 @@ type UserCacheRepository struct {
 
 func NewUserCacheRepository(dao dao.UserDao) UserRepository {
 	return &UserCacheRepository{dao: dao}
+}
+
+func (repo *UserCacheRepository) UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error {
+	// 根据id找到对应用户
+	u, err := repo.dao.FindById(ctx, uid)
+	if err != nil {
+		return err
+	}
+	// 对比旧密码与数据库中的密码是否相同
+	if u.Password != oldPwd {
+		return ErrInvalidPassword
+	}
+	// 更新新密码到数据库(使用dao层面已有的update方法)
+	user := domain.User{
+		Password: newPwd,
+	}
+	return repo.dao.UpdateNonZeroFields(ctx, repo.domainToEntity(user))
 }
 func (repo *UserCacheRepository) FindById(ctx context.Context, uid int64) (domain.User, error) {
 	// todo 后续或许可以接入缓存

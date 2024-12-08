@@ -20,6 +20,7 @@ var (
 	//emailRegexPattern    = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$"
 	passwordRegexPattern = `^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$`
 	ErrDuplicateEmail    = service.ErrDuplicateEmail
+	ErrInvalidPassword   = service.ErrInvalidPassword
 )
 
 type UserHandler struct {
@@ -37,7 +38,12 @@ func (h *UserHandler) PublicRoutes(server *gin.Engine) {
 func (h *UserHandler) PrivateRoutes(server *gin.Engine) {
 	user := server.Group("/user")
 	user.GET("/profile", ginx.WithSession(h.Profile))
-	user.PUT("/profile", ginx.WithSessionAndRequest[editReq](h.Edit))
+	//patch 在restful api 中的语义是更新部分资源，
+	//对比而言，post的语义就更像是完整的资源更新，
+	//所以此处使用patch来表示更新用户信息或者用户自己的密码，都是user表资源的一部分
+	user.PATCH("/profile", ginx.WithSessionAndRequest[editReq](h.Edit))
+	user.PATCH("/password", ginx.WithSessionAndRequest[editPasswordReq](h.UpdatePassword))
+	// 还有更多路由例如：更换绑定邮箱等等的操作，暂时搁置，因为需要耦合email的服务，等实现后再来设计并实现
 }
 
 type signUpReq struct {
@@ -47,7 +53,6 @@ type signUpReq struct {
 }
 
 func (h *UserHandler) SignUp(ctx *ginx.Context, req signUpReq) (ginx.Result, error) {
-	//h.logger.Info("SignUp", elog.Any("email", req.Email))
 	// 判断邮箱格式是否正确
 	isEmail, err := h.emailRexExp.MatchString(req.Email)
 	if err != nil {
@@ -143,6 +148,37 @@ func (h *UserHandler) Edit(ctx *ginx.Context, req editReq, sess session.Session)
 	return ginx.Result{
 		Msg: "用户信息更新完成",
 	}, nil
+}
+
+type editPasswordReq struct {
+	//Email string `json:"email"`
+	// 暂时还未引入验证码机制，所以暂时先定义出来，不使用
+	//Code        int64  `json:"code"`
+	OidPassword string `json:"oidpassword"`
+	NewPassword string `json:"newpassword"`
+}
+
+// UpdatePassword todo 单元测试一下
+func (h *UserHandler) UpdatePassword(ctx *ginx.Context, req editPasswordReq, sess session.Session) (ginx.Result, error) {
+	// 检查新密码是否符合已有的密码规则
+	isPassword, err := h.passwordRexExp.MatchString(req.NewPassword)
+	if err != nil {
+		return systemErrorResult, err
+	}
+	if !isPassword {
+		return DataErrorResult, err
+	}
+	uid := sess.Claims().Uid
+	err = h.svc.UpdatePassword(ctx, uid, req.OidPassword, req.NewPassword)
+	switch {
+	case err == nil:
+		return ginx.Result{Msg: "密码已更新"}, err
+	case errors.Is(err, ErrInvalidPassword):
+		return ginx.Result{Msg: "输入的原密码错误，请检查后重新输入"}, ErrInvalidPassword
+	default:
+		return systemErrorResult, err
+	}
+
 }
 
 func NewUserHandle(svc service.UserService) *UserHandler {

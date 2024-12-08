@@ -8,3 +8,7 @@ redis:
   addr: "localhost:6379"
 session:
   sessionKey: "abc"
+#  引入此字段可以动态调整（e-go）日志级别
+logger:
+  default:
+    level: debug

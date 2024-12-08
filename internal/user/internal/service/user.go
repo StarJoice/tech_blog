@@ -14,6 +14,7 @@ import (
 var (
 	ErrDuplicateEmail        = repository.ErrDuplicateEmail
 	ErrInvalidUserOrPassword = errors.New("用户不存在或密码不正确")
+	ErrInvalidPassword       = repository.ErrInvalidPassword
 )
 
 //go:generate mockgen -source=./user.go -package=svcmocks -destination=mocks/user.mock.go UserService
@@ -23,10 +24,15 @@ type UserService interface {
 	Profile(ctx context.Context, uid int64) (domain.User, error)
 	// UpdateNonSensitiveInfo 更新用户信息下的非敏感字段（就是指头像昵称等等...）
 	UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error
+	UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error
 }
 
 type UserSvc struct {
 	repo repository.UserRepository
+}
+
+func (svc *UserSvc) UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error {
+	return svc.repo.UpdatePassword(ctx, uid, oldPwd, newPwd)
 }
 
 func (svc *UserSvc) UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error {
