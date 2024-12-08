@@ -2,8 +2,14 @@ Web:
   port: 8080
   model: debug
 mysql:
-  dsn: "root:1233@tcp(localhost:3307)/tech_blog?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&timeout=1s&readTimeout=3s&writeTimeout=3s"
-  debug: true
+  dsn: "root:root@tcp(localhost:3307)/tech_blog?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&timeout=1s&readTimeout=3s&writeTimeout=3s"
+  #  debug 是在开发环境使用的，开启之后可以看到所有sql语句,
+  #  线上环境不开启的原因是因为有些数据是不可以被打印出来的
+  #  debug: true
+  enableDetailSQL: false
+  enableAccessInterceptor: true      # 是否开启，记录请求数据
+  enableAccessInterceptorReq: false    # 是否开启记录请求参数
+  enableAccessInterceptorRes: false    # 是否开启记录响应参数
 redis:
   addr: "localhost:6379"
 session:
