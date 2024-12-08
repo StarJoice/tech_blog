@@ -25,13 +25,11 @@ type UserDao interface {
 }
 
 type UserGormDao struct {
-	db *gorm.DB
-}
-type UserEgormDao struct {
+	//db *gorm.DB
 	db *egorm.Component
 }
 
-func NewUserGormDao(db *gorm.DB) UserDao {
+func NewUserGormDao(db *egorm.Component) UserDao {
 	return &UserGormDao{db: db}
 }
 func (dao *UserGormDao) UpdateNonZeroFields(ctx context.Context, u User) error {

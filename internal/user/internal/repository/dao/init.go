@@ -4,9 +4,9 @@
 package dao
 
 import (
-	"gorm.io/gorm"
+	"github.com/ego-component/egorm"
 )
 
-func InitTable(db *gorm.DB) error {
+func InitTable(db *egorm.Component) error {
 	return db.AutoMigrate(&User{})
 }
