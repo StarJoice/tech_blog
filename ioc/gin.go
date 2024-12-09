@@ -4,6 +4,7 @@
 package ioc
 
 import (
+	_ "github.com/StarJoice/tech_blog/docs"
 	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/StarJoice/tools/ginx/session"
 	"github.com/gin-contrib/cors"
@@ -33,6 +34,5 @@ func InitGinXServer(sp session.Provider, user *user.Handler) *egin.Component {
 	// 开启登录校验
 	server.Use(session.CheckLoginMiddleware())
 	user.PrivateRoutes(server.Engine)
-
 	return server
 }

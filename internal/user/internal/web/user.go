@@ -6,6 +6,7 @@ package web
 import (
 	"errors"
 	"fmt"
+	_ "github.com/StarJoice/tech_blog/docs"
 	"github.com/StarJoice/tech_blog/internal/user/internal/domain"
 	"github.com/StarJoice/tech_blog/internal/user/internal/service"
 	"github.com/StarJoice/tools/ginx/session"
@@ -13,6 +14,8 @@ import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
 	"github.com/gotomicro/ego/core/elog"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 var (
@@ -34,6 +37,7 @@ type UserHandler struct {
 func (h *UserHandler) PublicRoutes(server *gin.Engine) {
 	server.POST("/signup", ginx.WithRequest[signUpReq](h.SignUp))
 	server.POST("/login", ginx.WithRequest[loginReq](h.Login))
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 func (h *UserHandler) PrivateRoutes(server *gin.Engine) {
 	user := server.Group("/user")
@@ -95,11 +99,22 @@ type loginReq struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// Login 用户登录处理函数
+// @Summary 用户登录
+// @Description 用户通过邮箱和密码登录，如果成功，则生成会话（Session）
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param req body loginReq true "登录请求"
+// @Success 200 {object} web.Result "登录成功"  // 使用手动描述的 web.Result 类型
+// @Failure 400 {object} web.Result "邮箱或密码错误"
+// @Failure 500 {object} web.Result "系统错误"
+// @Router /login [post]
 func (h *UserHandler) Login(ctx *ginx.Context, req loginReq) (ginx.Result, error) {
 	user, err := h.svc.Login(ctx, req.Email, req.Password)
 	switch {
-	// 登录成功设置session
 	case err == nil:
+		// 登录成功设置session
 		_, err = session.NewSessionBuilder(ctx, user.Id).Build()
 		if err != nil {
 			return systemErrorResult, err

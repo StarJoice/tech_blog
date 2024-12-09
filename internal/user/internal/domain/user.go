@@ -3,6 +3,8 @@
 
 package domain
 
+// User 用户模型
+// @Description 用户信息结构体
 type User struct {
 	Id       int64
 	Email    string

@@ -16,6 +16,9 @@ var (
 	}
 )
 
+// Result 返回的结果结构体
+// @Description 该结构体描述了 API 请求的返回格式
+// @object
 type Result struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
