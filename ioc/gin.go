@@ -5,6 +5,7 @@ package ioc
 
 import (
 	_ "github.com/StarJoice/tech_blog/docs"
+	"github.com/StarJoice/tech_blog/internal/article"
 	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/StarJoice/tools/ginx/session"
 	"github.com/gin-contrib/cors"
@@ -12,7 +13,8 @@ import (
 	"strings"
 )
 
-func InitGinXServer(sp session.Provider, user *user.Handler) *egin.Component {
+func InitGinXServer(sp session.Provider,
+	user *user.Handler, arts *article.Handler) *egin.Component {
 	session.SetDefaultProvider(sp)
 	server := egin.Load("Web").Build()
 	//server.Use(mdls...)
@@ -31,8 +33,11 @@ func InitGinXServer(sp session.Provider, user *user.Handler) *egin.Component {
 		},
 	}))
 	user.PublicRoutes(server.Engine)
+	arts.PublicRoutes(server.Engine)
 	// 开启登录校验
 	server.Use(session.CheckLoginMiddleware())
 	user.PrivateRoutes(server.Engine)
+	arts.PrivateRoutes(server.Engine)
+
 	return server
 }

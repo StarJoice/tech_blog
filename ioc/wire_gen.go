@@ -7,8 +7,13 @@
 package ioc
 
 import (
+	"github.com/StarJoice/tech_blog/internal/article"
 	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/google/wire"
+)
+
+import (
+	_ "github.com/StarJoice/tech_blog/docs"
 )
 
 // Injectors from wire.go:
@@ -18,7 +23,8 @@ func InitApp() (*App, error) {
 	provider := InitSession(cmdable)
 	db := InitDB()
 	userHandler := user.InitHandler(db)
-	component := InitGinXServer(provider, userHandler)
+	articleHandler := article.InitHandler(db)
+	component := InitGinXServer(provider, userHandler, articleHandler)
 	app := &App{
 		Web: component,
 	}

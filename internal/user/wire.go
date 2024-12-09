@@ -9,7 +9,6 @@ import (
 	"github.com/StarJoice/tech_blog/internal/user/internal/web"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
-	"gorm.io/gorm"
 )
 
 var ProviderSet = wire.NewSet(
@@ -19,7 +18,7 @@ var ProviderSet = wire.NewSet(
 	InitDao,
 )
 
-func InitDao(db *gorm.DB) dao.UserDao {
+func InitDao(db *egorm.Component) dao.UserDao {
 	err := dao.InitTable(db)
 	if err != nil {
 		panic(err)
