@@ -13,9 +13,45 @@ import (
 type Service interface {
 	Save(ctx context.Context, art *domain.Article) (int64, error)
 	List(ctx context.Context, offset int, limit int, uid int64) ([]domain.Article, int64, error)
+	Publish(ctx context.Context, art *domain.Article) (int64, error)
+	PubList(ctx context.Context, offset int, limit int) ([]domain.Article, int64, error)
+	Detail(ctx context.Context, aid int64) (domain.Article, error)
+	PubDetail(ctx context.Context, aid int64) (domain.Article, error)
 }
 type ArticleSvc struct {
 	repo repository.ArticleRepository
+}
+
+func (svc *ArticleSvc) PubDetail(ctx context.Context, aid int64) (domain.Article, error) {
+	return svc.repo.GetPubById(ctx, aid)
+}
+
+func (svc *ArticleSvc) Detail(ctx context.Context, aid int64) (domain.Article, error) {
+	return svc.repo.GetById(ctx, aid)
+}
+
+func (svc *ArticleSvc) PubList(ctx context.Context, offset int, limit int) ([]domain.Article, int64, error) {
+	var (
+		eg      errgroup.Group
+		artList []domain.Article
+		total   int64
+	)
+	eg.Go(func() error {
+		var err error
+		artList, err = svc.repo.PubList(ctx, offset, limit)
+		return err
+	})
+	eg.Go(func() error {
+		var err error
+		total, err = svc.repo.PubTotal(ctx)
+		return err
+	})
+	err := eg.Wait()
+	return artList, total, err
+}
+
+func (svc *ArticleSvc) Publish(ctx context.Context, art *domain.Article) (int64, error) {
+	return svc.repo.Sync(ctx, art)
 }
 
 func NewArticleSvc(repo repository.ArticleRepository) Service {

@@ -11,6 +11,7 @@ import (
 	"github.com/StarJoice/tech_blog/internal/article/repository/dao"
 	"github.com/StarJoice/tech_blog/internal/article/service"
 	"github.com/StarJoice/tech_blog/internal/article/web"
+	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
 	"gorm.io/gorm"
@@ -18,12 +19,17 @@ import (
 
 // Injectors from wire.go:
 
-func InitHandler(db *gorm.DB) *web.ArticleHandler {
+func InitModule(db *gorm.DB, u *user.Module) (*Module, error) {
 	articleDao := InitDao(db)
 	articleRepository := repository.NewArticleCachedRepository(articleDao)
-	articleService := service.NewArticleSvc(articleRepository)
-	articleHandler := web.NewArticleHandler(articleService)
-	return articleHandler
+	serviceService := service.NewArticleSvc(articleRepository)
+	userService := u.Svc
+	articleHandler := web.NewArticleHandler(serviceService, userService)
+	module := &Module{
+		Svc: serviceService,
+		Hdl: articleHandler,
+	}
+	return module, nil
 }
 
 // wire.go:
@@ -37,5 +43,3 @@ func InitDao(db *egorm.Component) dao.ArticleDao {
 	}
 	return dao.NewArticleGormDao(db)
 }
-
-type Handler = web.ArticleHandler

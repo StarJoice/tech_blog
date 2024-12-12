@@ -22,8 +22,16 @@ func InitApp() (*App, error) {
 	cmdable := InitRedis()
 	provider := InitSession(cmdable)
 	db := InitDB()
-	userHandler := user.InitHandler(db)
-	articleHandler := article.InitHandler(db)
+	module, err := user.InitModule(db)
+	if err != nil {
+		return nil, err
+	}
+	userHandler := module.Hdl
+	articleModule, err := article.InitModule(db, module)
+	if err != nil {
+		return nil, err
+	}
+	articleHandler := articleModule.Hdl
 	component := InitGinXServer(provider, userHandler, articleHandler)
 	app := &App{
 		Web: component,

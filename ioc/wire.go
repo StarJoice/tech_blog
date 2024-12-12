@@ -13,8 +13,10 @@ var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis)
 func InitApp() (*App, error) {
 	wire.Build(wire.Struct(new(App), "*"),
 		BaseSet,
-		user.InitHandler,
-		article.InitHandler,
+		user.InitModule,
+		wire.FieldsOf(new(*user.Module), "Hdl"),
+		article.InitModule,
+		wire.FieldsOf(new(*article.Module), "Hdl"),
 		InitGinXServer)
 	return new(App), nil
 }

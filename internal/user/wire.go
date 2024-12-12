@@ -26,9 +26,10 @@ func InitDao(db *egorm.Component) dao.UserDao {
 	return dao.NewUserGormDao(db)
 }
 
-func InitHandler(db *egorm.Component) *Handler {
-	wire.Build(ProviderSet)
-	return new(Handler)
+func InitModule(db *egorm.Component) (*Module, error) {
+	wire.Build(
+		ProviderSet,
+		wire.Struct(new(Module), "*"),
+	)
+	return new(Module), nil
 }
-
-type Handler = web.UserHandler

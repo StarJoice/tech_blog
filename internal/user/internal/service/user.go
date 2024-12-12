@@ -25,10 +25,16 @@ type UserService interface {
 	// UpdateNonSensitiveInfo 更新用户信息下的非敏感字段（就是指头像昵称等等...）
 	UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error
 	UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error
+	// GetByID 提供给文章模块来查询文章作者
+	GetByID(ctx context.Context, id int64) (domain.User, error)
 }
 
 type UserSvc struct {
 	repo repository.UserRepository
+}
+
+func (svc *UserSvc) GetByID(ctx context.Context, id int64) (domain.User, error) {
+	return svc.repo.GetByID(ctx, id)
 }
 
 func (svc *UserSvc) UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error {

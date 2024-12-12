@@ -7,6 +7,7 @@ import (
 	"github.com/StarJoice/tech_blog/internal/article/repository/dao"
 	"github.com/StarJoice/tech_blog/internal/article/service"
 	"github.com/StarJoice/tech_blog/internal/article/web"
+	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
 )
@@ -26,9 +27,11 @@ func InitDao(db *egorm.Component) dao.ArticleDao {
 	return dao.NewArticleGormDao(db)
 }
 
-func InitHandler(db *egorm.Component) *Handler {
-	wire.Build(ProviderSet)
-	return new(Handler)
+func InitModule(db *egorm.Component, u *user.Module) (*Module, error) {
+	wire.Build(
+		ProviderSet,
+		wire.FieldsOf(new(*user.Module), "Svc"),
+		wire.Struct(new(Module), "*"),
+	)
+	return new(Module), nil
 }
-
-type Handler = web.ArticleHandler

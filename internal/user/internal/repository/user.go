@@ -24,12 +24,21 @@ type UserRepository interface {
 	FindById(ctx context.Context, uid int64) (domain.User, error)
 	Update(ctx context.Context, user domain.User) error
 	UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error
+	GetByID(ctx context.Context, id int64) (domain.User, error)
 }
 
 type UserCacheRepository struct {
 	dao dao.UserDao
 	// 暂时组装起来，但不使用
 	cache cache.UserCache
+}
+
+func (repo *UserCacheRepository) GetByID(ctx context.Context, id int64) (domain.User, error) {
+	data, err := repo.dao.FindById(ctx, id)
+	if err != nil {
+		return domain.User{}, err
+	}
+	return repo.toDomain(data), nil
 }
 
 func NewUserCacheRepository(dao dao.UserDao) UserRepository {
