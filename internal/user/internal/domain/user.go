@@ -12,6 +12,9 @@ type User struct {
 	Nickname string
 	Avatar   string
 	AboutMe  string
-	Ctime    int64
-	Utime    int64
+	// todo
+	//HasPublishedArticles bool   // 是否发布过文章
+	//Role                 string // 用户角色，比如 "reader" 或 "creator" 或者是 "admin" ???
+	Ctime int64
+	Utime int64
 }

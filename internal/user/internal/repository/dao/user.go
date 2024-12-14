@@ -32,6 +32,7 @@ type UserGormDao struct {
 func NewUserGormDao(db *egorm.Component) UserDao {
 	return &UserGormDao{db: db}
 }
+
 func (dao *UserGormDao) UpdateNonZeroFields(ctx context.Context, u User) error {
 	return dao.db.WithContext(ctx).Updates(&u).Error
 }

@@ -9,16 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// InitDB 目前开发暂时使用gorm
-func InitDB() *gorm.DB {
+// InitDB 初始化mysql DB
+func InitDB() *egorm.Component {
 	DB, err := gorm.Open(mysql.Open("root:root@tcp(localhost:3307)/tech_blog"))
 	if err != nil {
 		panic("failed to connect database")
 	}
 	return DB
-}
-
-// InitDBv1 使用egorm
-func InitDBv1() *egorm.Component {
-	return egorm.Load("mysql").Build()
 }

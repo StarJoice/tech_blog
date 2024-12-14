@@ -1,6 +1,3 @@
-//@Date 2024/12/9 20:45
-//@Desc
-
 package web
 
 import "github.com/StarJoice/tech_blog/internal/article/domain"
@@ -11,12 +8,13 @@ type Author struct {
 }
 
 type Article struct {
-	Id      int64  `json:"id,omitempty"`
-	Uid     int64  `json:"uid,omitempty"`
-	Title   string `json:"title,omitempty" validate:"required"`
-	Content string `json:"content,omitempty"`
-	Ctime   string `json:"ctime,omitempty"`
-	Author  Author `json:"author,omitempty"`
+	Id       int64  `json:"id,omitempty"`
+	Uid      int64  `json:"uid,omitempty"`
+	Title    string `json:"title,omitempty" validate:"required"`
+	Content  string `json:"content,omitempty"`
+	Abstract string `json:"abstract,omitempty"`
+	Ctime    string `json:"ctime,omitempty"`
+	Author   Author `json:"author,omitempty"`
 }
 
 type SaveReq struct {

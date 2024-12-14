@@ -32,6 +32,8 @@ func InitGinXServer(sp session.Provider,
 			return false
 		},
 	}))
+	// 暂时注释掉，开发环境暂时不需要
+	//server.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	user.PublicRoutes(server.Engine)
 	arts.PublicRoutes(server.Engine)
 	// 开启登录校验

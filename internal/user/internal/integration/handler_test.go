@@ -1,5 +1,4 @@
-//@Date 2024/12/12 11:05
-//@Desc
+//go:build e2e
 
 package integration
 

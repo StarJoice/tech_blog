@@ -22,10 +22,15 @@ type ArticleRepository interface {
 	PubTotal(ctx context.Context) (int64, error)
 	GetById(ctx context.Context, aid int64) (domain.Article, error)
 	GetPubById(ctx context.Context, aid int64) (domain.Article, error)
+	DeletePubById(ctx context.Context, aid int64) error
 }
 
 type ArticleCachedRepository struct {
 	dao dao.ArticleDao
+}
+
+func (repo *ArticleCachedRepository) DeletePubById(ctx context.Context, aid int64) error {
+	return repo.dao.DeleteById(ctx, aid)
 }
 
 func (repo *ArticleCachedRepository) GetPubById(ctx context.Context, aid int64) (domain.Article, error) {

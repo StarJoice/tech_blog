@@ -35,6 +35,9 @@ func (h *ArticleHandler) PrivateRoutes(server *gin.Engine) {
 	art.POST("/publish", ginx.WithSessionAndRequest[SaveReq](h.Publish))
 	art.POST("/detail", ginx.WithRequest[ArtId](h.Detail))
 	art.POST("/publish/detail", ginx.WithRequest[ArtId](h.PubDetail))
+	// 删除自己已发表的帖子
+	// todo 暂时先这样实现，后续可能软删除-- 即实现线上文章下线，回到创作中心继续编辑重新上线的功能
+	art.DELETE("/publish/detail", ginx.WithRequest[ArtId](h.DelPubDetail))
 }
 
 func (h *ArticleHandler) Save(ctx *ginx.Context,
@@ -143,11 +146,21 @@ func (h *ArticleHandler) PubDetail(ctx *ginx.Context,
 	}, err
 }
 
+func (h *ArticleHandler) DelPubDetail(ctx *ginx.Context, req ArtId) (ginx.Result, error) {
+	err := h.svc.DelPubDetail(ctx, req.Aid)
+	if err != nil {
+		return systemErrorResult, err
+	}
+	return ginx.Result{
+		Msg: "删除成功",
+	}, err
+}
+
 func newArt(art domain.Article) Article {
 	return Article{
-		Id:      art.Id,
-		Title:   art.Title,
-		Content: art.Content,
-		Ctime:   art.Ctime.Format(time.DateTime),
+		Id:       art.Id,
+		Title:    art.Title,
+		Abstract: art.Abstract,
+		Ctime:    art.Ctime.Format(time.DateTime),
 	}
 }

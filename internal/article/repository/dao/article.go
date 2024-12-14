@@ -20,10 +20,15 @@ type ArticleDao interface {
 	PubList(ctx context.Context, offset int, limit int) ([]PublishArticle, error)
 	GetArtById(ctx context.Context, aid int64) (Article, error)
 	GetPubArtById(ctx context.Context, aid int64) (PublishArticle, error)
+	DeleteById(ctx context.Context, aid int64) error
 }
 
 type ArticleGormDao struct {
 	db *egorm.Component
+}
+
+func (dao *ArticleGormDao) DeleteById(ctx context.Context, aid int64) error {
+	return dao.db.WithContext(ctx).Where("id=?", aid).Delete(&PublishArticle{}).Error
 }
 
 func (dao *ArticleGormDao) GetPubArtById(ctx context.Context, aid int64) (PublishArticle, error) {

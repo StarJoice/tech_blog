@@ -28,3 +28,4 @@ go.work.sum
 /docker-compose.yaml
 /logs/
 /config/config.yaml
+/prometheus.yaml

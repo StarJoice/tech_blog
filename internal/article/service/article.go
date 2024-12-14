@@ -1,6 +1,3 @@
-//@Date 2024/12/9 17:05
-//@Desc
-
 package service
 
 import (
@@ -17,9 +14,14 @@ type Service interface {
 	PubList(ctx context.Context, offset int, limit int) ([]domain.Article, int64, error)
 	Detail(ctx context.Context, aid int64) (domain.Article, error)
 	PubDetail(ctx context.Context, aid int64) (domain.Article, error)
+	DelPubDetail(ctx context.Context, aid int64) error
 }
 type ArticleSvc struct {
 	repo repository.ArticleRepository
+}
+
+func (svc *ArticleSvc) DelPubDetail(ctx context.Context, aid int64) error {
+	return svc.repo.DeletePubById(ctx, aid)
 }
 
 func (svc *ArticleSvc) PubDetail(ctx context.Context, aid int64) (domain.Article, error) {
