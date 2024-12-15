@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:42
-//@Desc
-
 package domain
 
 // User 用户模型

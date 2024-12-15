@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:46
-//@Desc
-
 package dao
 
 import (
