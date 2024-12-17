@@ -29,3 +29,4 @@ go.work.sum
 /logs/
 /config/config.yaml
 /prometheus.yaml
+Makefile

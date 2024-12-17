@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:59
-//@Desc
-
 package web
 
 import (
@@ -14,6 +11,7 @@ import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
 	"github.com/gotomicro/ego/core/elog"
+	"time"
 )
 
 var (
@@ -29,6 +27,15 @@ type UserHandler struct {
 	passwordRexExp *regexp.Regexp
 	svc            service.UserService
 	logger         *elog.Component
+}
+
+func NewUserHandle(svc service.UserService) *UserHandler {
+	return &UserHandler{
+		svc:            svc,
+		emailRexExp:    regexp.MustCompile(emailRegexPattern, regexp.None),
+		passwordRexExp: regexp.MustCompile(passwordRegexPattern, regexp.None),
+		logger:         elog.DefaultLogger,
+	}
 }
 
 // PublicRoutes 公开路由
@@ -126,6 +133,7 @@ func (h *UserHandler) Profile(ctx *ginx.Context, sess session.Session) (ginx.Res
 		Nickname: u.Nickname,
 		Avatar:   u.Avatar,
 		AboutMe:  u.AboutMe,
+		Ctime:    u.Ctime.Format(time.DateTime),
 	}}, nil
 }
 
@@ -181,13 +189,4 @@ func (h *UserHandler) UpdatePassword(ctx *ginx.Context, req editPasswordReq, ses
 		return systemErrorResult, err
 	}
 
-}
-
-func NewUserHandle(svc service.UserService) *UserHandler {
-	return &UserHandler{
-		svc:            svc,
-		emailRexExp:    regexp.MustCompile(emailRegexPattern, regexp.None),
-		passwordRexExp: regexp.MustCompile(passwordRegexPattern, regexp.None),
-		logger:         elog.DefaultLogger,
-	}
 }

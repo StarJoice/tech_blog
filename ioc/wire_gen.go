@@ -22,7 +22,7 @@ func InitApp() (*App, error) {
 	cmdable := InitRedis()
 	provider := InitSession(cmdable)
 	db := InitDB()
-	module, err := user.InitModule(db)
+	module, err := user.InitModule(db, cmdable)
 	if err != nil {
 		return nil, err
 	}

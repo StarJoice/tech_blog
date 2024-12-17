@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 // User 用户模型
 // @Description 用户信息结构体
 type User struct {
@@ -12,6 +14,6 @@ type User struct {
 	// todo
 	//HasPublishedArticles bool   // 是否发布过文章
 	//Role                 string // 用户角色，比如 "reader" 或 "creator" 或者是 "admin" ???
-	Ctime int64
-	Utime int64
+	Ctime time.Time
+	Utime time.Time
 }

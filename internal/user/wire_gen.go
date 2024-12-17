@@ -8,19 +8,22 @@ package user
 
 import (
 	"github.com/StarJoice/tech_blog/internal/user/internal/repository"
+	"github.com/StarJoice/tech_blog/internal/user/internal/repository/cache"
 	"github.com/StarJoice/tech_blog/internal/user/internal/repository/dao"
 	"github.com/StarJoice/tech_blog/internal/user/internal/service"
 	"github.com/StarJoice/tech_blog/internal/user/internal/web"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 // Injectors from wire.go:
 
-func InitModule(db *gorm.DB) (*Module, error) {
+func InitModule(db *gorm.DB, cmd redis.Cmdable) (*Module, error) {
 	userDao := InitDao(db)
-	userRepository := repository.NewUserCacheRepository(userDao)
+	userCache := cache.NewUserRedisCache(cmd)
+	userRepository := repository.NewUserCacheRepository(userDao, userCache)
 	userService := service.NewUserSvc(userRepository)
 	userHandler := web.NewUserHandle(userService)
 	module := &Module{
@@ -32,7 +35,7 @@ func InitModule(db *gorm.DB) (*Module, error) {
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(web.NewUserHandle, service.NewUserSvc, repository.NewUserCacheRepository, InitDao)
+var ProviderSet = wire.NewSet(cache.NewUserRedisCache, web.NewUserHandle, service.NewUserSvc, repository.NewUserCacheRepository, InitDao)
 
 func InitDao(db *egorm.Component) dao.UserDao {
 	err := dao.InitTable(db)

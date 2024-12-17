@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:47
-//@Desc
-
 package cache
 
 import (
@@ -25,7 +22,7 @@ type UserRedisCache struct {
 }
 
 func NewUserRedisCache(client redis.Cmdable) UserCache {
-	return &UserRedisCache{client: client}
+	return &UserRedisCache{client: client, expiration: time.Hour * 24 * 7}
 }
 func (cache *UserRedisCache) Get(ctx context.Context, id int64) (domain.User, error) {
 	key := cache.key(id)
