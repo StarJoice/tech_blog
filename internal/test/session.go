@@ -1,6 +1,3 @@
-//@Date 2024/12/12 11:18
-//@Desc
-
 package test
 
 import (
@@ -9,6 +6,7 @@ import (
 )
 
 func Init() {
+	// 本地session，测试使用
 	session.SetDefaultProvider(&SessionProvider{})
 }
 

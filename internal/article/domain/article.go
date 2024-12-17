@@ -1,6 +1,3 @@
-//@Date 2024/12/9 16:00
-//@Desc
-
 package domain
 
 import "time"

@@ -1,6 +1,3 @@
-//@Date 2024/12/9 20:35
-//@Desc
-
 package errs
 
 var (
