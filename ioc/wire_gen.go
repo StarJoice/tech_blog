@@ -8,6 +8,8 @@ package ioc
 
 import (
 	"github.com/StarJoice/tech_blog/internal/article"
+	"github.com/StarJoice/tech_blog/internal/interactive"
+	"github.com/StarJoice/tech_blog/internal/label"
 	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/google/wire"
 )
@@ -32,7 +34,17 @@ func InitApp() (*App, error) {
 		return nil, err
 	}
 	articleHandler := articleModule.Hdl
-	component := InitGinXServer(provider, userHandler, articleHandler)
+	labelModule, err := label.InitModule(db)
+	if err != nil {
+		return nil, err
+	}
+	handler := labelModule.Hdl
+	interactiveModule, err := interactive.InitModule(db)
+	if err != nil {
+		return nil, err
+	}
+	webHandler := interactiveModule.Hdl
+	component := InitGinXServer(provider, userHandler, articleHandler, handler, webHandler)
 	app := &App{
 		Web: component,
 	}

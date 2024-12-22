@@ -30,3 +30,4 @@ go.work.sum
 /config/config.yaml
 /prometheus.yaml
 Makefile
+/internal/job/

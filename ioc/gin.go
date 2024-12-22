@@ -1,11 +1,10 @@
-//@Date 2024/12/5 01:11
-//@Desc
-
 package ioc
 
 import (
 	_ "github.com/StarJoice/tech_blog/docs"
 	"github.com/StarJoice/tech_blog/internal/article"
+	"github.com/StarJoice/tech_blog/internal/interactive"
+	"github.com/StarJoice/tech_blog/internal/label"
 	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/StarJoice/tools/ginx/session"
 	"github.com/gin-contrib/cors"
@@ -14,7 +13,7 @@ import (
 )
 
 func InitGinXServer(sp session.Provider,
-	user *user.Handler, arts *article.Handler) *egin.Component {
+	user *user.Handler, arts *article.Handler, lab *label.Handler, inter *interactive.Handler) *egin.Component {
 	session.SetDefaultProvider(sp)
 	server := egin.Load("Web").Build()
 	//server.Use(mdls...)
@@ -36,8 +35,10 @@ func InitGinXServer(sp session.Provider,
 	//server.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	user.PublicRoutes(server.Engine)
 	arts.PublicRoutes(server.Engine)
+	lab.PublicRoutes(server.Engine)
 	// 开启登录校验
 	server.Use(session.CheckLoginMiddleware())
+	inter.PrivateRoutes(server.Engine)
 	user.PrivateRoutes(server.Engine)
 	arts.PrivateRoutes(server.Engine)
 

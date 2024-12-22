@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:42
-//@Desc
-
 package main
 
 import (
@@ -8,8 +5,9 @@ import (
 	"github.com/gotomicro/ego"
 )
 
-// export EGO_DEBUG=true
 // go run main.go --config=config/config.yaml
+//
+//export EGO_DEBUG=true
 func main() {
 	// 先触发初始化
 	egoApp := ego.New()
