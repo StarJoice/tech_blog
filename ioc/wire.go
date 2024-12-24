@@ -10,7 +10,7 @@ import (
 	"github.com/google/wire"
 )
 
-var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis)
+var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis, InitMq)
 
 func InitApp() (*App, error) {
 	wire.Build(wire.Struct(new(App), "*"),

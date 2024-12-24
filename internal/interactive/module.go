@@ -1,14 +1,11 @@
 package interactive
 
 import (
-	"github.com/StarJoice/tech_blog/internal/interactive/service"
-	"github.com/StarJoice/tech_blog/internal/interactive/web"
+	"github.com/StarJoice/tech_blog/internal/interactive/internal/event"
 )
 
 type Module struct {
 	Hdl *Handler
 	Svc Service
+	c   *event.Consumer
 }
-
-type Handler = web.Handler
-type Service = service.Service

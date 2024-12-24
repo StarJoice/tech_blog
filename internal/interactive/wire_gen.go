@@ -7,10 +7,13 @@
 package interactive
 
 import (
-	"github.com/StarJoice/tech_blog/internal/interactive/repository"
-	"github.com/StarJoice/tech_blog/internal/interactive/repository/dao"
-	"github.com/StarJoice/tech_blog/internal/interactive/service"
-	"github.com/StarJoice/tech_blog/internal/interactive/web"
+	"context"
+	"github.com/StarJoice/tech_blog/internal/interactive/internal/event"
+	"github.com/StarJoice/tech_blog/internal/interactive/internal/repository"
+	"github.com/StarJoice/tech_blog/internal/interactive/internal/repository/dao"
+	"github.com/StarJoice/tech_blog/internal/interactive/internal/service"
+	"github.com/StarJoice/tech_blog/internal/interactive/internal/web"
+	"github.com/ecodeclub/mq-api"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
 	"gorm.io/gorm"
@@ -18,14 +21,16 @@ import (
 
 // Injectors from wire.go:
 
-func InitModule(db *gorm.DB) (*Module, error) {
+func InitModule(db *gorm.DB, q mq.MQ) (*Module, error) {
 	interactiveDao := InitDao(db)
 	repositoryRepository := repository.NewInteractiveRepository(interactiveDao)
 	serviceService := service.NewInteractiveService(repositoryRepository)
 	handler := web.NewHandler(serviceService)
+	consumer := initConsumer(serviceService, q)
 	module := &Module{
 		Hdl: handler,
 		Svc: serviceService,
+		c:   consumer,
 	}
 	return module, nil
 }
@@ -40,4 +45,13 @@ func InitDao(db *egorm.Component) dao.InteractiveDao {
 		panic(err)
 	}
 	return dao.NewInteractiveGormDao(db)
+}
+
+func initConsumer(svc service.Service, q mq.MQ) *event.Consumer {
+	consumer, err := event.NewSyncConsumer(svc, q)
+	if err != nil {
+		panic(err)
+	}
+	consumer.Start(context.Background())
+	return consumer
 }

@@ -1,6 +1,3 @@
-//@Date 2024/12/5 01:16
-//@Desc
-
 package ioc
 
 import (

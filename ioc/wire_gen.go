@@ -29,7 +29,11 @@ func InitApp() (*App, error) {
 		return nil, err
 	}
 	userHandler := module.Hdl
-	articleModule, err := article.InitModule(db, module)
+	mq, err := InitMq()
+	if err != nil {
+		return nil, err
+	}
+	articleModule, err := article.InitModule(db, module, mq)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +43,7 @@ func InitApp() (*App, error) {
 		return nil, err
 	}
 	handler := labelModule.Hdl
-	interactiveModule, err := interactive.InitModule(db)
+	interactiveModule, err := interactive.InitModule(db, mq)
 	if err != nil {
 		return nil, err
 	}
@@ -53,4 +57,4 @@ func InitApp() (*App, error) {
 
 // wire.go:
 
-var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis)
+var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis, InitMq)

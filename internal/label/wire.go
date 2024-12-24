@@ -3,10 +3,10 @@
 package label
 
 import (
-	"github.com/StarJoice/tech_blog/internal/label/repository"
-	"github.com/StarJoice/tech_blog/internal/label/repository/dao"
-	"github.com/StarJoice/tech_blog/internal/label/service"
-	"github.com/StarJoice/tech_blog/internal/label/web"
+	"github.com/StarJoice/tech_blog/internal/label/internal/repository"
+	"github.com/StarJoice/tech_blog/internal/label/internal/repository/dao"
+	"github.com/StarJoice/tech_blog/internal/label/internal/service"
+	"github.com/StarJoice/tech_blog/internal/label/internal/web"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
 )

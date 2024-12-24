@@ -7,11 +7,13 @@
 package article
 
 import (
-	"github.com/StarJoice/tech_blog/internal/article/repository"
-	"github.com/StarJoice/tech_blog/internal/article/repository/dao"
-	"github.com/StarJoice/tech_blog/internal/article/service"
-	"github.com/StarJoice/tech_blog/internal/article/web"
+	"github.com/StarJoice/tech_blog/internal/article/internal/event"
+	"github.com/StarJoice/tech_blog/internal/article/internal/repository"
+	"github.com/StarJoice/tech_blog/internal/article/internal/repository/dao"
+	"github.com/StarJoice/tech_blog/internal/article/internal/service"
+	"github.com/StarJoice/tech_blog/internal/article/internal/web"
 	"github.com/StarJoice/tech_blog/internal/user"
+	"github.com/ecodeclub/mq-api"
 	"github.com/ego-component/egorm"
 	"github.com/google/wire"
 	"gorm.io/gorm"
@@ -19,10 +21,14 @@ import (
 
 // Injectors from wire.go:
 
-func InitModule(db *gorm.DB, u *user.Module) (*Module, error) {
+func InitModule(db *gorm.DB, u *user.Module, q mq.MQ) (*Module, error) {
+	interactiveEventProducer, err := event.NewInteractiveEventProducer(q)
+	if err != nil {
+		return nil, err
+	}
 	articleDao := InitDao(db)
 	articleRepository := repository.NewArticleCachedRepository(articleDao)
-	serviceService := service.NewArticleSvc(articleRepository)
+	serviceService := service.NewArticleSvc(interactiveEventProducer, articleRepository)
 	userService := u.Svc
 	articleHandler := web.NewArticleHandler(serviceService, userService)
 	module := &Module{
@@ -34,7 +40,7 @@ func InitModule(db *gorm.DB, u *user.Module) (*Module, error) {
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(web.NewArticleHandler, repository.NewArticleCachedRepository, service.NewArticleSvc, InitDao)
+var ProviderSet = wire.NewSet(web.NewArticleHandler, repository.NewArticleCachedRepository, service.NewArticleSvc, event.NewInteractiveEventProducer, InitDao)
 
 func InitDao(db *egorm.Component) dao.ArticleDao {
 	err := dao.InitTable(db)

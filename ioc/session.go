@@ -5,7 +5,7 @@ package ioc
 
 import (
 	"github.com/StarJoice/tools/ginx/session"
-	redis2 "github.com/StarJoice/tools/ginx/session/redis"
+	SessRedis "github.com/StarJoice/tools/ginx/session/redis"
 	"github.com/gotomicro/ego/core/econf"
 	"github.com/redis/go-redis/v9"
 )
@@ -19,6 +19,6 @@ func InitSession(cmd redis.Cmdable) session.Provider {
 	if err != nil {
 		panic(err)
 	}
-	sp := redis2.NewSessionProvider(cmd, cfg.SessionKey)
+	sp := SessRedis.NewSessionProvider(cmd, cfg.SessionKey)
 	return sp
 }
