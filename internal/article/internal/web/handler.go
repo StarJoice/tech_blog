@@ -44,7 +44,7 @@ func (h *ArticleHandler) Save(ctx *ginx.Context,
 	req SaveReq, sess session.Session) (ginx.Result, error) {
 	art := req.toDomain()
 	art.Uid = sess.Claims().Uid
-	id, err := h.svc.Save(ctx, &art)
+	id, err := h.svc.Save(ctx.Request.Context(), &art)
 	if err != nil {
 		return systemErrorResult, err
 	}
@@ -57,7 +57,7 @@ func (h *ArticleHandler) List(ctx *ginx.Context,
 	req Page, sess session.Session) (ginx.Result, error) {
 	// 根据uid查询
 	uid := sess.Claims().Uid
-	artList, total, err := h.svc.List(ctx, req.Offset, req.Limit, uid)
+	artList, total, err := h.svc.List(ctx.Request.Context(), req.Offset, req.Limit, uid)
 	if err != nil {
 		return systemErrorResult, err
 	}
@@ -79,7 +79,7 @@ func (h *ArticleHandler) Publish(ctx *ginx.Context,
 	req SaveReq, sess session.Session) (ginx.Result, error) {
 	art := req.toDomain()
 	art.Uid = sess.Claims().Uid
-	id, err := h.svc.Publish(ctx, &art)
+	id, err := h.svc.Publish(ctx.Request.Context(), &art)
 	if err != nil {
 		return systemErrorResult, err
 	}
@@ -90,7 +90,7 @@ func (h *ArticleHandler) Publish(ctx *ginx.Context,
 
 func (h *ArticleHandler) PubList(ctx *ginx.Context,
 	req Page) (ginx.Result, error) {
-	data, cnt, err := h.svc.PubList(ctx, req.Offset, req.Limit)
+	data, cnt, err := h.svc.PubList(ctx.Request.Context(), req.Offset, req.Limit)
 	if err != nil {
 		return systemErrorResult, err
 	}
@@ -126,7 +126,7 @@ func (h *ArticleHandler) PubList(ctx *ginx.Context,
 
 func (h *ArticleHandler) Detail(ctx *ginx.Context,
 	req ArtId) (ginx.Result, error) {
-	detail, err := h.svc.Detail(ctx, req.Aid)
+	detail, err := h.svc.Detail(ctx.Request.Context(), req.Aid)
 	if err != nil {
 		return systemErrorResult, err
 	}
@@ -137,7 +137,7 @@ func (h *ArticleHandler) Detail(ctx *ginx.Context,
 
 func (h *ArticleHandler) PubDetail(ctx *ginx.Context,
 	req ArtId) (ginx.Result, error) {
-	detail, err := h.svc.PubDetail(ctx, req.Aid)
+	detail, err := h.svc.PubDetail(ctx.Request.Context(), req.Aid)
 	if err != nil {
 		return systemErrorResult, err
 	}
@@ -147,7 +147,7 @@ func (h *ArticleHandler) PubDetail(ctx *ginx.Context,
 }
 
 func (h *ArticleHandler) DelPubDetail(ctx *ginx.Context, req ArtId) (ginx.Result, error) {
-	err := h.svc.DelPubDetail(ctx, req.Aid)
+	err := h.svc.DelPubDetail(ctx.Request.Context(), req.Aid)
 	if err != nil {
 		return systemErrorResult, err
 	}

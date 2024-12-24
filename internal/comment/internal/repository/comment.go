@@ -7,3 +7,7 @@ type Repository interface {
 type CommentRepository struct {
 	dao dao.CommentDao
 }
+
+func NewCommentRepository(dao dao.CommentDao) Repository {
+	return &CommentRepository{dao: dao}
+}

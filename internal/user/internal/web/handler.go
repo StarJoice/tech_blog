@@ -85,7 +85,7 @@ func (h *UserHandler) SignUp(ctx *ginx.Context, req signUpReq) (ginx.Result, err
 		}, fmt.Errorf("密码不符合格式要求")
 	}
 	// 调用下层service
-	err = h.svc.Signup(ctx, domain.User{
+	err = h.svc.Signup(ctx.Request.Context(), domain.User{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -105,7 +105,7 @@ type loginReq struct {
 }
 
 func (h *UserHandler) Login(ctx *ginx.Context, req loginReq) (ginx.Result, error) {
-	user, err := h.svc.Login(ctx, req.Email, req.Password)
+	user, err := h.svc.Login(ctx.Request.Context(), req.Email, req.Password)
 	switch {
 	case err == nil:
 		// 登录成功设置session
@@ -124,7 +124,7 @@ func (h *UserHandler) Login(ctx *ginx.Context, req loginReq) (ginx.Result, error
 func (h *UserHandler) Profile(ctx *ginx.Context, sess session.Session) (ginx.Result, error) {
 	// 直接从session中拿到uid
 	uid := sess.Claims().Uid
-	u, err := h.svc.Profile(ctx, uid)
+	u, err := h.svc.Profile(ctx.Request.Context(), uid)
 	if err != nil {
 		return ginx.Result{}, err
 	}
@@ -146,7 +146,7 @@ type editReq struct {
 
 func (h *UserHandler) Edit(ctx *ginx.Context, req editReq, sess session.Session) (ginx.Result, error) {
 	uid := sess.Claims().Uid
-	err := h.svc.UpdateNonSensitiveInfo(ctx, domain.User{
+	err := h.svc.UpdateNonSensitiveInfo(ctx.Request.Context(), domain.User{
 		Id:       uid,
 		Nickname: req.Nickname,
 		Avatar:   req.Avatar,
@@ -179,7 +179,7 @@ func (h *UserHandler) UpdatePassword(ctx *ginx.Context, req editPasswordReq, ses
 		return DataErrorResult, err
 	}
 	uid := sess.Claims().Uid
-	err = h.svc.UpdatePassword(ctx, uid, req.OidPassword, req.NewPassword)
+	err = h.svc.UpdatePassword(ctx.Request.Context(), uid, req.OidPassword, req.NewPassword)
 	switch {
 	case err == nil:
 		return ginx.Result{Msg: "密码已更新"}, err
