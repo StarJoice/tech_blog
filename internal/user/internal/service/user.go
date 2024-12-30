@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:42
-//@Desc
-
 package service
 
 import (
@@ -33,16 +30,17 @@ type UserSvc struct {
 	repo repository.UserRepository
 }
 
-func (svc *UserSvc) GetByID(ctx context.Context, id int64) (domain.User, error) {
-	return svc.repo.GetByID(ctx, id)
+func NewUserSvc(repo repository.UserRepository) UserService {
+	return &UserSvc{repo: repo}
 }
 
-func (svc *UserSvc) UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error {
-	return svc.repo.UpdatePassword(ctx, uid, oldPwd, newPwd)
-}
-
-func (svc *UserSvc) UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error {
-	return svc.repo.Update(ctx, user)
+func (svc *UserSvc) Signup(ctx context.Context, user domain.User) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hash)
+	return svc.repo.Create(ctx, user)
 }
 
 func (svc *UserSvc) Login(ctx context.Context, email string, password string) (domain.User, error) {
@@ -62,18 +60,18 @@ func (svc *UserSvc) Login(ctx context.Context, email string, password string) (d
 	return u, nil
 }
 
-func (svc *UserSvc) Signup(ctx context.Context, user domain.User) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	user.Password = string(hash)
-	return svc.repo.Create(ctx, user)
-}
 func (svc *UserSvc) Profile(ctx context.Context, uid int64) (domain.User, error) {
 	return svc.repo.FindById(ctx, uid)
 }
 
-func NewUserSvc(repo repository.UserRepository) UserService {
-	return &UserSvc{repo: repo}
+func (svc *UserSvc) UpdateNonSensitiveInfo(ctx context.Context, user domain.User) error {
+	return svc.repo.Update(ctx, user)
+}
+
+func (svc *UserSvc) UpdatePassword(ctx context.Context, uid int64, oldPwd string, newPwd string) error {
+	return svc.repo.UpdatePassword(ctx, uid, oldPwd, newPwd)
+}
+
+func (svc *UserSvc) GetByID(ctx context.Context, id int64) (domain.User, error) {
+	return svc.repo.GetByID(ctx, id)
 }

@@ -1,5 +1,6 @@
 package errs
 
+// user模块 使用501标识
 var (
 	SystemError = ErrorCode{
 		Code: 501001,

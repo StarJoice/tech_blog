@@ -13,13 +13,4 @@ type Article struct {
 	Utime int64 `gorm:"autoUpdateTime:milli;index"` // 自动更新时间，单位为毫秒
 }
 
-// TableName 设置表名
-func (Article) TableName() string {
-	return "articles"
-}
-
 type PublishArticle Article
-
-func (PublishArticle) TableName() string {
-	return "publish_articles"
-}

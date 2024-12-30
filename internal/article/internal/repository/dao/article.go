@@ -24,6 +24,10 @@ type ArticleGormDao struct {
 	db *egorm.Component
 }
 
+func NewArticleGormDao(db *egorm.Component) ArticleDao {
+	return &ArticleGormDao{db: db}
+}
+
 func (dao *ArticleGormDao) DeleteById(ctx context.Context, aid int64) error {
 	return dao.db.WithContext(ctx).Where("id=?", aid).Delete(&PublishArticle{}).Error
 }
@@ -137,8 +141,4 @@ func (dao *ArticleGormDao) update(ctx context.Context,
 		"title":   art.Title,
 		"content": art.Content,
 	}).Error
-}
-
-func NewArticleGormDao(db *egorm.Component) ArticleDao {
-	return &ArticleGormDao{db: db}
 }

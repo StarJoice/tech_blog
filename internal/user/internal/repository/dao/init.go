@@ -1,6 +1,3 @@
-//@Date 2024/12/5 00:52
-//@Desc
-
 package dao
 
 import (
@@ -9,4 +6,9 @@ import (
 
 func InitTable(db *egorm.Component) error {
 	return db.AutoMigrate(&User{})
+}
+
+// TableName 实现tableName 接口，指定建表时表名
+func (User) TableName() string {
+	return "user"
 }

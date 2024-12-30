@@ -19,6 +19,7 @@ var ProviderSet = wire.NewSet(
 	repository.NewArticleCachedRepository,
 	service.NewArticleSvc,
 	event.NewInteractiveEventProducer,
+	event.NewSyncEventProducer,
 	InitDao,
 )
 

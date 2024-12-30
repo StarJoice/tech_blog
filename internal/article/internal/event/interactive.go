@@ -21,6 +21,7 @@ const intrTopic = "interactive_events"
 func NewInteractiveEventProducer(p mq.MQ) (InteractiveEventProducer, error) {
 	return mqx.NewGeneralProducer[InteractiveEvent](p, intrTopic)
 }
+
 func NewViewCntEvent(id int64, biz string) InteractiveEvent {
 	return InteractiveEvent{
 		Biz:    biz,

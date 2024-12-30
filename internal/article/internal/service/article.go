@@ -22,15 +22,20 @@ type Service interface {
 type ArticleSvc struct {
 	repo         repository.ArticleRepository
 	intrProducer event.InteractiveEventProducer
+	producer     event.SyncEventProducer
 	logger       *elog.Component
+	// 同步超时时长
+	syncTimeout time.Duration
 }
 
 func NewArticleSvc(intrProducer event.InteractiveEventProducer,
-	repo repository.ArticleRepository) Service {
+	repo repository.ArticleRepository, producer event.SyncEventProducer) Service {
 	return &ArticleSvc{
-		intrProducer: intrProducer,
 		repo:         repo,
+		intrProducer: intrProducer,
+		producer:     producer,
 		logger:       elog.DefaultLogger,
+		syncTimeout:  time.Second * 10,
 	}
 }
 
@@ -80,7 +85,14 @@ func (svc *ArticleSvc) PubList(ctx context.Context, offset int, limit int) ([]do
 }
 
 func (svc *ArticleSvc) Publish(ctx context.Context, art *domain.Article) (int64, error) {
-	return svc.repo.Sync(ctx, art)
+	id, err := svc.repo.Sync(ctx, art)
+	if err == nil {
+		go func() {
+			// 同步文章数据到 搜索模块
+			svc.syncArticle(id)
+		}()
+	}
+	return id, err
 }
 
 // Save 在这里是一个upsert的语义，直接在这里分发
@@ -115,4 +127,24 @@ func (svc *ArticleSvc) List(ctx context.Context,
 	}
 	return artList, total, nil
 	// 后续可以在这里引入缓存
+}
+
+func (svc *ArticleSvc) syncArticle(id int64) {
+	ctx, cancel := context.WithTimeout(context.Background(), svc.syncTimeout)
+	defer cancel()
+	arts, err := svc.repo.GetPubById(ctx, id)
+	if err != nil {
+		svc.logger.Error("搜索案例详情失败",
+			elog.FieldErr(err),
+		)
+		return
+	}
+	res := event.NewArticleEvent(arts)
+	err = svc.producer.Produce(ctx, res)
+	if err != nil {
+		svc.logger.Error("发送案例内容到搜索失败",
+			elog.FieldErr(err),
+			elog.Any("article", res),
+		)
+	}
 }

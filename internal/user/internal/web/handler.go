@@ -55,12 +55,6 @@ func (h *UserHandler) PrivateRoutes(server *gin.Engine) {
 	// 还有更多路由例如：更换绑定邮箱等等的操作，暂时搁置，因为需要耦合email的服务，等实现后再来设计并实现
 }
 
-type signUpReq struct {
-	Email           string `json:"email" binding:"required"`
-	Password        string `json:"password" binding:"required"`
-	ConfirmPassword string `json:"confirmPassword" binding:"required"`
-}
-
 func (h *UserHandler) SignUp(ctx *ginx.Context, req signUpReq) (ginx.Result, error) {
 	// 判断邮箱格式是否正确
 	isEmail, err := h.emailRexExp.MatchString(req.Email)
@@ -99,11 +93,6 @@ func (h *UserHandler) SignUp(ctx *ginx.Context, req signUpReq) (ginx.Result, err
 	}
 }
 
-type loginReq struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
 func (h *UserHandler) Login(ctx *ginx.Context, req loginReq) (ginx.Result, error) {
 	user, err := h.svc.Login(ctx.Request.Context(), req.Email, req.Password)
 	switch {
@@ -137,13 +126,6 @@ func (h *UserHandler) Profile(ctx *ginx.Context, sess session.Session) (ginx.Res
 	}}, nil
 }
 
-// editReq 仅能更新用户信息下的非敏感字段（昵称、头像等等...），后续扩展再加入字段
-type editReq struct {
-	Nickname string `json:"nickname" binding:"required"`
-	Avatar   string `json:"avatar" binding:"required"`
-	AboutMe  string `json:"aboutMe" binding:"required"`
-}
-
 func (h *UserHandler) Edit(ctx *ginx.Context, req editReq, sess session.Session) (ginx.Result, error) {
 	uid := sess.Claims().Uid
 	err := h.svc.UpdateNonSensitiveInfo(ctx.Request.Context(), domain.User{
@@ -160,15 +142,6 @@ func (h *UserHandler) Edit(ctx *ginx.Context, req editReq, sess session.Session)
 	}, nil
 }
 
-type editPasswordReq struct {
-	//Email string `json:"email"`
-	// 暂时还未引入验证码机制，所以暂时先定义出来，不使用
-	//Code        int64  `json:"code"`
-	OidPassword string `json:"oidpassword"`
-	NewPassword string `json:"newpassword"`
-}
-
-// UpdatePassword todo 单元测试一下
 func (h *UserHandler) UpdatePassword(ctx *ginx.Context, req editPasswordReq, sess session.Session) (ginx.Result, error) {
 	// 检查新密码是否符合已有的密码规则
 	isPassword, err := h.passwordRexExp.MatchString(req.NewPassword)
@@ -188,5 +161,4 @@ func (h *UserHandler) UpdatePassword(ctx *ginx.Context, req editPasswordReq, ses
 	default:
 		return systemErrorResult, err
 	}
-
 }

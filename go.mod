@@ -14,6 +14,7 @@ require (
 	github.com/golang/mock v1.4.4
 	github.com/google/wire v0.6.0
 	github.com/gotomicro/ego v1.2.2
+	github.com/olivere/elastic/v7 v7.0.32
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/swag v1.16.4
@@ -128,7 +129,7 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/arch v0.12.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
-	golang.org/x/net v0.32.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.28.0 // indirect

@@ -8,8 +8,10 @@ package ioc
 
 import (
 	"github.com/StarJoice/tech_blog/internal/article"
+	"github.com/StarJoice/tech_blog/internal/comment"
 	"github.com/StarJoice/tech_blog/internal/interactive"
 	"github.com/StarJoice/tech_blog/internal/label"
+	"github.com/StarJoice/tech_blog/internal/search"
 	"github.com/StarJoice/tech_blog/internal/user"
 	"github.com/google/wire"
 )
@@ -48,7 +50,18 @@ func InitApp() (*App, error) {
 		return nil, err
 	}
 	webHandler := interactiveModule.Hdl
-	component := InitGinXServer(provider, userHandler, articleHandler, handler, webHandler)
+	commentModule, err := comment.InitModule(db)
+	if err != nil {
+		return nil, err
+	}
+	handler2 := commentModule.Hdl
+	client := InitES()
+	searchModule, err := search.InitModule(client, mq)
+	if err != nil {
+		return nil, err
+	}
+	handler3 := searchModule.Hdl
+	component := InitGinXServer(provider, userHandler, articleHandler, handler, webHandler, handler2, handler3)
 	app := &App{
 		Web: component,
 	}
@@ -57,4 +70,4 @@ func InitApp() (*App, error) {
 
 // wire.go:
 
-var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis, InitMq)
+var BaseSet = wire.NewSet(InitDB, InitSession, InitRedis, InitMq, InitES)

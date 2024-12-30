@@ -28,7 +28,11 @@ func InitModule(db *gorm.DB, u *user.Module, q mq.MQ) (*Module, error) {
 	}
 	articleDao := InitDao(db)
 	articleRepository := repository.NewArticleCachedRepository(articleDao)
-	serviceService := service.NewArticleSvc(interactiveEventProducer, articleRepository)
+	syncEventProducer, err := event.NewSyncEventProducer(q)
+	if err != nil {
+		return nil, err
+	}
+	serviceService := service.NewArticleSvc(interactiveEventProducer, articleRepository, syncEventProducer)
 	userService := u.Svc
 	articleHandler := web.NewArticleHandler(serviceService, userService)
 	module := &Module{
@@ -40,7 +44,7 @@ func InitModule(db *gorm.DB, u *user.Module, q mq.MQ) (*Module, error) {
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(web.NewArticleHandler, repository.NewArticleCachedRepository, service.NewArticleSvc, event.NewInteractiveEventProducer, InitDao)
+var ProviderSet = wire.NewSet(web.NewArticleHandler, repository.NewArticleCachedRepository, service.NewArticleSvc, event.NewInteractiveEventProducer, event.NewSyncEventProducer, InitDao)
 
 func InitDao(db *egorm.Component) dao.ArticleDao {
 	err := dao.InitTable(db)

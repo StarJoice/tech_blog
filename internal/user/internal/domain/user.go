@@ -2,6 +2,8 @@ package domain
 
 import "time"
 
+const BizUser = "User"
+
 // User 用户模型
 // @Description 用户信息结构体
 type User struct {

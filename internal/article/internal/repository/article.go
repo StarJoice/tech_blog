@@ -1,12 +1,9 @@
-//@Date 2024/12/9 17:03
-//@Desc
-
 package repository
 
 import (
 	"context"
 	"github.com/StarJoice/tech_blog/internal/article/internal/domain"
-	dao2 "github.com/StarJoice/tech_blog/internal/article/internal/repository/dao"
+	"github.com/StarJoice/tech_blog/internal/article/internal/repository/dao"
 	"time"
 )
 
@@ -26,7 +23,11 @@ type ArticleRepository interface {
 }
 
 type ArticleCachedRepository struct {
-	dao dao2.ArticleDao
+	dao dao.ArticleDao
+}
+
+func NewArticleCachedRepository(dao dao.ArticleDao) ArticleRepository {
+	return &ArticleCachedRepository{dao: dao}
 }
 
 func (repo *ArticleCachedRepository) DeletePubById(ctx context.Context, aid int64) error {
@@ -38,7 +39,7 @@ func (repo *ArticleCachedRepository) GetPubById(ctx context.Context, aid int64) 
 	if err != nil {
 		return domain.Article{}, err
 	}
-	return repo.toDomain(dao2.Article(data)), err
+	return repo.toDomain(dao.Article(data)), err
 }
 
 func (repo *ArticleCachedRepository) GetById(ctx context.Context, aid int64) (domain.Article, error) {
@@ -57,7 +58,7 @@ func (repo *ArticleCachedRepository) PubList(ctx context.Context,
 	}
 	domainArts := make([]domain.Article, 0, len(artList))
 	for _, art := range artList {
-		domainArts = append(domainArts, repo.toDomain(dao2.Article(art)))
+		domainArts = append(domainArts, repo.toDomain(dao.Article(art)))
 	}
 	return domainArts, nil
 }
@@ -72,7 +73,7 @@ func (repo *ArticleCachedRepository) PubTotal(ctx context.Context) (int64, error
 
 // Sync 这里的语义是同步（将文章发表到线上，即同步数据到线上表）
 func (repo *ArticleCachedRepository) Sync(ctx context.Context, art *domain.Article) (int64, error) {
-	data := repo.toEneity(art)
+	data := repo.toEntity(art)
 	return repo.dao.Sync(ctx, data)
 }
 
@@ -95,19 +96,15 @@ func (repo *ArticleCachedRepository) List(ctx context.Context,
 }
 
 func (repo *ArticleCachedRepository) Create(ctx context.Context, art *domain.Article) (int64, error) {
-	return repo.dao.Create(ctx, repo.toEneity(art))
+	return repo.dao.Create(ctx, repo.toEntity(art))
 }
 
 func (repo *ArticleCachedRepository) Update(ctx context.Context, art *domain.Article) error {
-	return repo.dao.Update(ctx, repo.toEneity(art))
+	return repo.dao.Update(ctx, repo.toEntity(art))
 }
 
-func NewArticleCachedRepository(dao dao2.ArticleDao) ArticleRepository {
-	return &ArticleCachedRepository{dao: dao}
-}
-
-func (repo *ArticleCachedRepository) toEneity(art *domain.Article) dao2.Article {
-	return dao2.Article{
+func (repo *ArticleCachedRepository) toEntity(art *domain.Article) dao.Article {
+	return dao.Article{
 		Id:      art.Id,
 		Uid:     art.Uid,
 		Title:   art.Title,
@@ -115,7 +112,7 @@ func (repo *ArticleCachedRepository) toEneity(art *domain.Article) dao2.Article 
 	}
 }
 
-func (repo *ArticleCachedRepository) toDomain(art dao2.Article) domain.Article {
+func (repo *ArticleCachedRepository) toDomain(art dao.Article) domain.Article {
 	return domain.Article{
 		Id:      art.Id,
 		Uid:     art.Uid,

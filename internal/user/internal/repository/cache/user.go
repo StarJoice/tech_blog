@@ -50,6 +50,8 @@ func (cache *UserRedisCache) Set(ctx context.Context, u domain.User) error {
 func (cache *UserRedisCache) Del(ctx context.Context, id int64) error {
 	return cache.client.Del(ctx, cache.key(id)).Err()
 }
+
+// 整个系统的  key 都是tech_blog:$module:XXX
 func (cache *UserRedisCache) key(id int64) string {
 	return fmt.Sprintf("tech_blog:user:%d", id)
 }

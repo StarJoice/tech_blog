@@ -18,9 +18,11 @@ type GormCommentDao struct {
 func NewCommentDao(db *egorm.Component) CommentDao {
 	return &GormCommentDao{db: db}
 }
+
 func (dao *GormCommentDao) Insert(ctx context.Context, c Comment) error {
 	return dao.db.WithContext(ctx).Create(&c).Error
 }
+
 func (dao *GormCommentDao) FindByBiz(ctx context.Context, biz string, bizID, minID, limit int64) ([]Comment, error) {
 	var res []Comment
 	err := dao.db.WithContext(ctx).

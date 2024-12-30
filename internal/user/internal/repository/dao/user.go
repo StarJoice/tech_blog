@@ -22,7 +22,6 @@ type UserDao interface {
 }
 
 type UserGormDao struct {
-	//db *gorm.DB
 	db *egorm.Component
 }
 

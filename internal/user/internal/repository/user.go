@@ -27,8 +27,7 @@ type UserRepository interface {
 }
 
 type UserCacheRepository struct {
-	dao dao.UserDao
-	// 暂时组装起来，但不使用
+	dao   dao.UserDao
 	cache cache.UserCache
 }
 
@@ -71,7 +70,7 @@ func (repo *UserCacheRepository) UpdatePassword(ctx context.Context, uid int64, 
 	}
 	// 删除原有缓存，防止下次登录时访问到旧数据
 	_ = repo.cache.Del(ctx, uid)
-	return repo.dao.UpdateNonZeroFields(ctx, repo.domainToEntity(user))
+	return repo.dao.UpdateNonZeroFields(ctx, repo.toEntity(user))
 }
 func (repo *UserCacheRepository) FindById(ctx context.Context, uid int64) (domain.User, error) {
 	// 先从缓存中寻找数据
@@ -89,7 +88,7 @@ func (repo *UserCacheRepository) FindById(ctx context.Context, uid int64) (domai
 }
 
 func (repo *UserCacheRepository) Update(ctx context.Context, user domain.User) error {
-	err := repo.dao.UpdateNonZeroFields(ctx, repo.domainToEntity(user))
+	err := repo.dao.UpdateNonZeroFields(ctx, repo.toEntity(user))
 	if err != nil {
 		return err
 	}
@@ -122,8 +121,7 @@ func (repo *UserCacheRepository) FindByEmail(ctx context.Context, email string) 
 	return repo.toDomain(u), nil
 }
 
-func (repo *UserCacheRepository) domainToEntity(u domain.User) dao.User {
-	// 暂时只有更新接口会使用，所以不引入非敏感字段以外的字段
+func (repo *UserCacheRepository) toEntity(u domain.User) dao.User {
 	return dao.User{
 		Id:       u.Id,
 		Email:    u.Email,
@@ -142,7 +140,8 @@ func (repo *UserCacheRepository) toDomain(u dao.User) domain.User {
 		Nickname: u.Nickname,
 		Avatar:   u.Avatar,
 		AboutMe:  u.AboutMe,
-		Ctime:    time.UnixMilli(u.Ctime),
-		Utime:    time.UnixMilli(u.Utime),
+		// 将毫秒时间戳转换为日期格式
+		Ctime: time.UnixMilli(u.Ctime),
+		Utime: time.UnixMilli(u.Utime),
 	}
 }
